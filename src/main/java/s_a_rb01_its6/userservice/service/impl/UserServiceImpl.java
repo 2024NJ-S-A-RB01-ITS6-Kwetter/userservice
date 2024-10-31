@@ -18,13 +18,16 @@ public class UserServiceImpl implements UserService {
     @Transactional
     @Override
     public RegisterResponse createUser(UserRequest userRequest){
-        //check if user exists
+
+        //Check if all of the unique parameters are unique
         if (Boolean.TRUE.equals(userRepository.existsByUsername(userRequest.username()))) {
             throw new EntityExistsException("Username already exists");
         }
+        //TODO implement other unique parameter checks
 
         //TODO other checks regarding user such as password length, email format etc.
 
+        //
 
         UserDTO user = UserDTO.builder()
                 .email(userRequest.email())
@@ -32,9 +35,13 @@ public class UserServiceImpl implements UserService {
                 .bio(userRequest.bio())
                 .build();
 
-        //TODO send to rabbitmq that user is created as well as to keycloak
 
+
+        //TODO call the keycloak service to register the user
+        //TODO then save the user in local database
         userRepository.save(user);
+        //TODO then generate a rabbitmq message to notify other services that a new user is created
+
         return RegisterResponse.builder().message("User successfully registered!").build();
     }
 
@@ -56,14 +63,16 @@ public class UserServiceImpl implements UserService {
     // username cant be changed because it is used as a unique identifier
     @Transactional
     public void updateUser(UserRequest userRequest) {
+
+        //TODO check if the user updating is the same user as being updated or if they have admin rights.
+
+
         userRepository.existsByUsername(userRequest.username());
         if (Boolean.FALSE.equals(userRepository.existsByUsername(userRequest.username()))) {
             throw new EntityExistsException("User does not exist");
         }
-        //get user from db
 
         //TODO other checks regarding user such as password length, email format etc.
-        //TODO make sure the user is changing their own profile not someone else's
 
         UserDTO user = UserDTO.builder()
                 .id(userRequest.id())
@@ -73,5 +82,9 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         userRepository.save(user);
+        //TODO RABBITMQ
     }
+
+
+    //TODO Create a validator for the userRequest object
 }

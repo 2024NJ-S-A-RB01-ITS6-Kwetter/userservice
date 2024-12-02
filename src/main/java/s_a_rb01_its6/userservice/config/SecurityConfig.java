@@ -18,6 +18,8 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    private final CustomJwtAuthenticationConverter jwtAuthConverter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Disable CSRF protection
@@ -25,31 +27,20 @@ public class SecurityConfig {
 
         // Define authorization rules
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(antMatcher("**")).permitAll()  // Allow unauthenticated access to /register
-                .anyRequest().authenticated()  // All other requests require authentication
+                .requestMatchers(antMatcher("/api/user/register/")).permitAll() // Allow unauthenticated access to /register
+                .anyRequest().authenticated()  // require authentication for all other requests
         );
 
-        //TODO ADD CONNECTION TO AUTH SERVER/JWT TOKEN
+        http.oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthConverter))
+        );
+
 
         http.sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         );
 
         return http.build();
-    }
-
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration corsConfig = new CorsConfiguration();
-        corsConfig.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        corsConfig.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
-        corsConfig.setAllowCredentials(true);
-
-        org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
-        return source;
     }
 
 }

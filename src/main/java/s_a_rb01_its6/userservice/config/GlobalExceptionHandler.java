@@ -14,7 +14,6 @@ public class GlobalExceptionHandler {
         // Log the exception and return a meaningful response
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleAllExceptions(Exception ex) {
         // Log the exception and return a generic error response

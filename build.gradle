@@ -51,6 +51,9 @@ dependencies {
 	// Testing
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+	// https://mvnrepository.com/artifact/com.h2database/h2
+	testImplementation group: 'com.h2database', name: 'h2', version: '2.3.232'
+
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import s_a_rb01_its6.userservice.repository.UserRepository;
 import s_a_rb01_its6.userservice.service.impl.KeycloakService;
 import s_a_rb01_its6.userservice.service.impl.UserServiceImpl;
@@ -14,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
+@ActiveProfiles("test")
 class UserDTOServiceApplicationTests {
 	//i need an empty test so pipeline can pass
 

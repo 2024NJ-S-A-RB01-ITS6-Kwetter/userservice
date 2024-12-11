@@ -18,7 +18,7 @@ public class CustomJwtAuthenticationConverter extends JwtAuthenticationConverter
         setJwtGrantedAuthoritiesConverter(this::extractAuthorities);
     }
 
-    //TODO test if this works lol
+    //TODO make this actually convert the roles to authorities with the correct prefix (ROLE_)
     private Collection<GrantedAuthority> extractAuthorities(Jwt jwt) {
         // Extract "roles" claim and map them to GrantedAuthority
         Collection<GrantedAuthority> authorities = jwt.getClaimAsStringList("roles")

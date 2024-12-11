@@ -34,10 +34,8 @@ dependencies {
 	// https://mvnrepository.com/artifact/org.keycloak/keycloak-spring-boot-starter
 	implementation group: 'org.keycloak', name: 'keycloak-spring-boot-starter', version: '25.0.3'
 
-
 	// https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-authorization-server
 	implementation group: 'org.springframework.security', name: 'spring-security-oauth2-authorization-server', version: '1.4.0'
-
 
 	// Flyway for Database Migrations
 	runtimeOnly 'org.flywaydb:flyway-core:9.22.0'

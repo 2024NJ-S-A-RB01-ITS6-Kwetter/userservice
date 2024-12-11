@@ -1,12 +1,41 @@
 version: '3.8'
+
 services:
-  mysql:
-    image: mysql:8.3.0
-    container_name: mysql-user-service
+  user-service:
+    container_name: user-service
+    build:
+      context: .
+      dockerfile: Dockerfile
     environment:
-      MYSQL_ROOT_PASSWORD: mysql
+      SPRING_APPLICATION_NAME: ${SPRING_APPLICATION_NAME}
+      SERVER_PORT: ${SERVER_PORT}
+      KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM}
+      KEYCLOAK_RESOURCE: ${KEYCLOAK_RESOURCE}
+      KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
+      JWT_ISSUER_URI: ${JWT_ISSUER_URI}
+      JWT_JWK_SET_URI: ${JWT_JWK_SET_URI}
     ports:
-      - "3306:3306"
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+        - user-service-db
+
+    networks:
+      - shared-network
+
+  user-service-db:
+    container_name: user-service-db
+    image: mysql:8
     volumes:
-      - ./mysql:/var/lib/mysql
-      - ./docker/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./volume-data/mysql_user_service_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    ports:
+      - "3307:3306"
+    networks:
+      - shared-network
+
+networks:
+  shared-network:
+    external: true

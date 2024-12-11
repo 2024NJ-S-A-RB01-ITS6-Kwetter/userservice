@@ -27,7 +27,7 @@ public class SecurityConfig {
 
         // Define authorization rules
         http.authorizeHttpRequests(authorize -> authorize
-                .requestMatchers(antMatcher("/api/user/register/")).permitAll() // Allow unauthenticated access to /register
+                .requestMatchers(antMatcher("/api/v1/user/register")).permitAll() // Allow unauthenticated access to /register
                 .anyRequest().authenticated()  // require authentication for all other requests
         );
 

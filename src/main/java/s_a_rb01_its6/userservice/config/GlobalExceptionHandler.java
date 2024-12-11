@@ -18,6 +18,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleAllExceptions(Exception ex) {
         // Log the exception and return a generic error response
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occurred");
+                .body("An unexpected error occurred "+ ex.getMessage());
     }
 }

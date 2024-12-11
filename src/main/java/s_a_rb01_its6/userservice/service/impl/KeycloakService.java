@@ -1,5 +1,6 @@
 package s_a_rb01_its6.userservice.service.impl;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -17,10 +18,9 @@ import java.util.List;
 @Service
 public class KeycloakService {
 
-    //TODO: Move these to application.properties
-    //TODO change these to my keycloak server
-    private final String serverUrl = "http://localhost:8181/";
-    private final String realm = "spring-microservices-security-realm";
+    //TODO: MAKE THESE COME FROM @VALUE
+    private final String serverUrl = "http://keycloak:8080/";
+    private final String realm = "kwetter";  // The realm to authenticate in
     private final String clientId = "admin-cli";  // Use 'admin-cli' for administrative tasks
     //private final String clientSecret = "";       // Optional if you're using 'admin-cli'
     private final String adminUsername = "admin"; // Admin username
@@ -29,6 +29,7 @@ public class KeycloakService {
     // Use the builder to obtain the Keycloak admin token
     private Keycloak keycloak;
 
+    @PostConstruct
     public void KeycloakAdminService() {
         this.keycloak = KeycloakBuilder.builder()
                 .serverUrl(serverUrl)

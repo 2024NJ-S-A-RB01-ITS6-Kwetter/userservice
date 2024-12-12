@@ -3,6 +3,8 @@ package s_a_rb01_its6.userservice.config;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,6 +18,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @Configuration
 @RequiredArgsConstructor
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityConfig {
 
     private final CustomJwtAuthenticationConverter jwtAuthConverter;
@@ -24,6 +27,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Disable CSRF protection
         http.csrf(AbstractHttpConfigurer::disable);
+        System.out.println("MADE IT TO SECURITY IN USERSERVICE");
 
         // Define authorization rules
         http.authorizeHttpRequests(authorize -> authorize

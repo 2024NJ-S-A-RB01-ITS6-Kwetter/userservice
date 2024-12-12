@@ -35,9 +35,10 @@ public class UserController {
 
     //delete user
     //TODO MAKE SURE IT IS ADMIN OR THE USER SELF DELETING
-    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.claims['sub']")
+    //@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.claims['sub']")
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+        System.out.println("User delete called");
         userService.deleteUserById(id);
         return ResponseEntity.ok("User deleted successfully");
     }

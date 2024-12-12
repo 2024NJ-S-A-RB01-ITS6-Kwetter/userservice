@@ -3,8 +3,10 @@ package s_a_rb01_its6.userservice.service.impl;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import s_a_rb01_its6.userservice.config.RabbitMQConfig;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final KeycloakService keycloakService;
+    private final RabbitTemplate rabbitTemplate;
 
     @Transactional
     @Override
@@ -69,6 +72,10 @@ public class UserServiceImpl implements UserService {
         keycloakService.deleteUserInKeycloak(user.get().getUsername());
 
         //TODO RABBITMQ
+        rabbitTemplate.convertAndSend(RabbitMQConfig.USER_DELETE_EXCHANGE,
+                RabbitMQConfig.USER_DELETE_ROUTING_KEY, id);
+        userRepository.deleteById(id);
+
     }
 
     @Override

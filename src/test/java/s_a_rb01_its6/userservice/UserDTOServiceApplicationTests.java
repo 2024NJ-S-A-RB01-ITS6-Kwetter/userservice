@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import s_a_rb01_its6.userservice.repository.UserRepository;
@@ -25,6 +26,9 @@ class UserDTOServiceApplicationTests {
 	@Mock
 	private KeycloakService keycloakService;
 
+	@Mock
+	private RabbitTemplate rabbitTemplate;
+
 	private AutoCloseable autoCloseable;
 
 	private UserServiceImpl userService;
@@ -32,7 +36,7 @@ class UserDTOServiceApplicationTests {
 	@BeforeEach
 	void setup(){
 		autoCloseable = MockitoAnnotations.openMocks(this);
-		userService = new UserServiceImpl(userRepository,keycloakService);
+		userService = new UserServiceImpl(userRepository,keycloakService, rabbitTemplate);
 	}
 	@AfterEach
 	void tearDown() throws Exception{

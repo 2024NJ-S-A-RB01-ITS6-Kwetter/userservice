@@ -2,29 +2,43 @@ package s_a_rb01_its6.userservice.service.impl;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.ws.rs.core.Response;
+import lombok.RequiredArgsConstructor;
 import org.keycloak.OAuth2Constants;
+import org.keycloak.adapters.springsecurity.KeycloakAuthenticationException;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import s_a_rb01_its6.userservice.service.exception.KeyCloakError;
 
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class KeycloakService {
 
-    //TODO: MAKE THESE COME FROM @VALUE
-    private final String serverUrl = "http://keycloak:8080/";
-    private final String realm = "kwetter";  // The realm to authenticate in
-    private final String clientId = "admin-cli";  // Use 'admin-cli' for administrative tasks
-    //private final String clientSecret = "";       // Optional if you're using 'admin-cli'
-    private final String adminUsername = "admin"; // Admin username
-    private final String adminPassword = "admin"; // Admin password
+    @Value("${keycloak.server-url}")
+    private String serverUrl;
+
+    @Value("${keycloak.realm}")
+    private String realm;
+
+    @Value("${keycloak.client-id}")
+    private String clientId;
+
+    @Value("${keycloak.admin-username}")
+    private String adminUsername;
+
+    @Value("${keycloak.admin-password}")
+    private String adminPassword;
 
     // Use the builder to obtain the Keycloak admin token
     private Keycloak keycloak;
@@ -41,10 +55,11 @@ public class KeycloakService {
                 .build();
     }
 
-    public void registerUserInKeycloak(String username, String password) {
+    public String registerUserInKeycloak(String username, String password , String email) {
         // Create the user representation
         UserRepresentation user = new UserRepresentation();
         user.setUsername(username);
+        user.setEmail(email);
         user.setEnabled(true);
         user.setCredentials(Collections.singletonList(createPasswordCredentials(password)));
         user.setRealmRoles(Collections.singletonList("user")); // Assign roles to the user
@@ -55,37 +70,26 @@ public class KeycloakService {
         // Create the user in Keycloak
         Response response = usersResource.create(user);
         if (response.getStatus() != 201) {
-            throw new RuntimeException("Failed to create user in Keycloak: " + response.getStatus());
+            throw new KeyCloakError("Failed to create user in Keycloak: " + response);
         }
-
-        // Optionally, you can retrieve the user’s Keycloak ID here for further use
+        // Extract the Keycloak user ID from the response's Location header
+        String location = response.getHeaderString("Location"); // e.g., "/realms/{realm}/users/{id}"
+        if (location == null) {
+            throw new KeyCloakError("Failed to retrieve user ID from Keycloak response");
+        }
+        // Extract the user ID (UUID) from the location header
+        return location.substring(location.lastIndexOf('/') + 1); // Return the Keycloak-generated user ID (UUID)
     }
 
     //delete user in keycloak
-    public void deleteUserInKeycloak(String username) {
+    public void deleteUserInKeycloak(String userId) {
         UsersResource usersResource = keycloak.realm(realm).users();
-        List<UserRepresentation> users = usersResource.search(username);
-        if (users == null || users.isEmpty()) {
-            throw new RuntimeException("User not found in Keycloak: " + username);
-        }
-        String userId = users.get(0).getId();
         UserResource userResource = usersResource.get(userId);
         userResource.remove();
     }
 
-    public void updateUserInKeycloak(String currentUsername, String newUsername, String newEmail) {
-        UsersResource usersResource = keycloak.realm(realm).users();
-
-        List<UserRepresentation> users = usersResource.search(currentUsername);
-        if (users == null || users.isEmpty()) {
-            throw new RuntimeException("User not found in Keycloak: " + currentUsername);
-        }
-
-        UserRepresentation userRepresentation = users.get(0);  // Fetch the user representation
-        userRepresentation.setUsername(newUsername);  // Update username
-        userRepresentation.setEmail(newEmail);        // Update email
-
-        // Validate new username and email
+    public void updateUserInKeycloak(String userId, String newUsername, String newEmail, String password) {
+        // Validate new username and email before making Keycloak requests
         if (newUsername == null || newUsername.trim().isEmpty()) {
             throw new IllegalArgumentException("New username cannot be null or empty.");
         }
@@ -93,15 +97,26 @@ public class KeycloakService {
             throw new IllegalArgumentException("New email cannot be null or empty.");
         }
 
-        UserResource userResource = usersResource.get(userRepresentation.getId());
+        // Get the UsersResource for the realm
+        UsersResource usersResource = keycloak.realm(realm).users();
+
         try {
-            userResource.update(userRepresentation);  // Send the updated data to Keycloak
+            // Fetch the current UserRepresentation from Keycloak
+            UserResource userResource = usersResource.get(userId);
+            UserRepresentation userRepresentation = userResource.toRepresentation();
+
+            // Update fields
+            userRepresentation.setUsername(newUsername);
+            userRepresentation.setEmail(newEmail);
+            userRepresentation.setCredentials(Collections.singletonList(createPasswordCredentials(password)));
+            userRepresentation.setEnabled(true); // Ensure the user is enabled
+            userResource.update(userRepresentation);
+            //log the user out of all sessions
+            keycloak.realm(realm).users().get(userId).logout();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update user in Keycloak: " + e.getMessage());
+            throw new KeyCloakError("Failed to update user in Keycloak: " + e.getMessage());
         }
     }
-
-
     private CredentialRepresentation createPasswordCredentials(String password) {
         CredentialRepresentation passwordCred = new CredentialRepresentation();
         passwordCred.setTemporary(false);  // Password is not temporary

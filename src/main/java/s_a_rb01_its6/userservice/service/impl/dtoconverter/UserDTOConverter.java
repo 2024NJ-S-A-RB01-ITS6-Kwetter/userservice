@@ -15,12 +15,12 @@ public final class UserDTOConverter {
                 .build();
     }
 
-//    public static UserDTO toUser(UserEntity userEntity) {
-//        return UserDTO.builder()
-//                .id(userEntity.getId())
-//                .email(userEntity.getEmail())
-//                .username(userEntity.getUsername())
-//                .bio(userEntity.getBio())
-//                .build();
-//    }
+    public static UserDTO toUser(UserEntity userEntity) {
+        return UserDTO.builder()
+                .id(userEntity.getId())
+                .email(userEntity.getEmail())
+                .username(userEntity.getUsername())
+                .bio(userEntity.getBio())
+                .build();
+    }
 }

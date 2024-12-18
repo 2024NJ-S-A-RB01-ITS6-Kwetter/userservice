@@ -45,4 +45,23 @@ public class RabbitMQConfig {
     public Binding bindingDelete(Queue userDeleteQueue, DirectExchange userDeleteExchange) {
         return BindingBuilder.bind(userDeleteQueue).to(userDeleteExchange).with(USER_DELETE_ROUTING_KEY);
     }
+
+    public static final String USER_UPDATE_EXCHANGE = "userUpdateExchange";
+    public static final String USER_UPDATE_QUEUE = "userUpdateQueue";
+    public static final String USER_UPDATE_ROUTING_KEY = "userUpdateKey";
+
+    @Bean
+    public DirectExchange userUpdateExchange() {
+        return new DirectExchange(USER_UPDATE_EXCHANGE);
+    }
+
+    @Bean
+    public Queue userUpdateQueue() {
+        return new Queue(USER_UPDATE_QUEUE);
+    }
+
+    @Bean
+    public Binding bindingUpdate(Queue userUpdateQueue, DirectExchange userUpdateExchange) {
+        return BindingBuilder.bind(userUpdateQueue).to(userUpdateExchange).with(USER_UPDATE_ROUTING_KEY);
+    }
 }

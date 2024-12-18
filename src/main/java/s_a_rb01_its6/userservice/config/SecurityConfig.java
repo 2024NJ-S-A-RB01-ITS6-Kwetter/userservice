@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -18,6 +20,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @Configuration
 @RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class SecurityConfig {
 
@@ -27,8 +30,6 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         // Disable CSRF protection
         http.csrf(AbstractHttpConfigurer::disable);
-        System.out.println("MADE IT TO SECURITY IN USERSERVICE");
-
         // Define authorization rules
         http.authorizeHttpRequests(authorize -> authorize
                 .requestMatchers(antMatcher("/api/v1/user/register")).permitAll() // Allow unauthenticated access to /register

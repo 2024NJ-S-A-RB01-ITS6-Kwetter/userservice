@@ -30,6 +30,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+	implementation 'org.hibernate.validator:hibernate-validator:8.0.0.Final'
 
 	// Keycloak Dependencies
 	implementation 'org.keycloak:keycloak-admin-client:26.0.1'

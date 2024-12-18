@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   user-service:
     container_name: user-service
@@ -13,7 +12,9 @@ services:
       KEYCLOAK_REALM: ${KEYCLOAK_REALM}
       KEYCLOAK_RESOURCE: ${KEYCLOAK_RESOURCE}
       KEYCLOAK_SECRET: ${KEYCLOAK_SECRET}
-      MYSQL_DATASOURCE: ${DATABASE_URL}
+      MYSQL_DATASOURCE: ${MYSQL_DATASOURCE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       JWT_ISSUER_URI: ${JWT_ISSUER_URI}
       JWT_JWK_SET_URI: ${JWT_JWK_SET_URI}
       RABBITMQ_HOST: ${RABBITMQ_HOST}
@@ -23,8 +24,7 @@ services:
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     depends_on:
-        - user-service-db
-
+      - user-service-db
     networks:
       - shared-network
 

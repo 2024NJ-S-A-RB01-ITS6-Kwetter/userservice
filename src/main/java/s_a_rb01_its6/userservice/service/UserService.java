@@ -2,19 +2,22 @@ package s_a_rb01_its6.userservice.service;
 
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
+import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
 import s_a_rb01_its6.userservice.domain.responses.UserResponse;
+import s_a_rb01_its6.userservice.domain.responses.UserUpdatedResponse;
+
+import java.util.List;
 
 public interface UserService {
 
     RegisterResponse createUser(RegisterUserRequest registerUserRequest);
 
-    //TODO add methods to get a profile
+    UserUpdatedResponse updateUser(UserRequest userRequest);
 
-    //TODO change methods to use not return void but return a response object
-    void updateUser(UserRequest userRequest);
+    DeleteUserResponse deleteUserByUserName(String username);
 
-    void deleteUserById(Long id);
+    UserResponse getProfileByUsername(String username);
 
-    UserResponse getUserById(Long id);
+    List<UserResponse> searchUser(String username);
 }

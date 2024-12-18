@@ -1,16 +1,20 @@
 package s_a_rb01_its6.userservice.controller;
 
-import jakarta.annotation.security.RolesAllowed;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
+import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
 import s_a_rb01_its6.userservice.domain.responses.UserResponse;
-import s_a_rb01_its6.userservice.service.UserService;
+import s_a_rb01_its6.userservice.domain.responses.UserUpdatedResponse;
 import s_a_rb01_its6.userservice.service.impl.UserServiceImpl;
+
+import java.util.List;
 
 import static s_a_rb01_its6.userservice.config.Constant.API_URL;
 
@@ -20,37 +24,43 @@ import static s_a_rb01_its6.userservice.config.Constant.API_URL;
 public class UserController {
     private final UserServiceImpl userService;
 
+
+
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> registerUser(@RequestBody RegisterUserRequest registerUserRequest) {
-        return ResponseEntity.ok(userService.createUser(registerUserRequest));
+    public ResponseEntity<RegisterResponse> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
+        RegisterResponse registerResponse = userService.createUser(registerUserRequest);
+        return ResponseEntity.ok(registerResponse);
     }
 
     //update user
-    //TODO change resposeEntity to UpdateUserResponse and request to UpdateUserRequest
     @PutMapping("/update")
-    public ResponseEntity<String> updateUser(@RequestBody UserRequest userRequest) {
-        userService.updateUser(userRequest);
-        return ResponseEntity.ok("User updated successfully");
+// Check if the user updating is the same user as being updated or if they have admin rights
+    @PreAuthorize("hasRole('ADMIN') or #userRequest.id.equals(authentication.principal.claims['sub'])")
+    public ResponseEntity<UserUpdatedResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
+        UserUpdatedResponse userUpdatedResponse = userService.updateUser (userRequest);
+        return ResponseEntity.ok(userUpdatedResponse);
     }
 
     //delete user
-    //TODO MAKE SURE IT IS ADMIN OR THE USER SELF DELETING
-    //@PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.claims['sub']")
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
-        System.out.println("User delete called");
-        userService.deleteUserById(id);
-        return ResponseEntity.ok("User deleted successfully");
+    @PreAuthorize("hasRole('ADMIN') or #username.equals(authentication.name)")
+    @DeleteMapping("/delete/{username}")
+    public ResponseEntity<DeleteUserResponse> deleteUser(@PathVariable String username) {
+        DeleteUserResponse deleteUserResponse = userService.deleteUserByUserName(username);
+        return ResponseEntity.ok(deleteUserResponse);
     }
 
     //get profile
-    @GetMapping("/profile/{id}")
-    public ResponseEntity<UserResponse> getProfile(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<UserResponse> getProfile(@PathVariable String username) {
+        UserResponse userResponse = userService.getProfileByUsername(username);
+        return ResponseEntity.ok(userResponse);
     }
 
     //search user
-
-
+    @GetMapping("/search")
+    public ResponseEntity<List<UserResponse>> searchUser(@RequestParam String username) {
+        List<UserResponse> userResponses = userService.searchUser(username);
+        return ResponseEntity.ok(userResponses);
+    }
 
 }

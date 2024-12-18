@@ -1,16 +1,15 @@
-package s_a_rb01_its6.userservice.domain.responses;
+package s_a_rb01_its6.userservice.events;
 
 import lombok.*;
+
+import java.io.Serializable;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserResponse {
+public class UserUpdatedEvent implements Serializable {
     private String id;
-    private String email;
     private String username;
-    private String bio;
-
 }

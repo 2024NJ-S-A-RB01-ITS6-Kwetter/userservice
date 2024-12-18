@@ -108,6 +108,7 @@ public class UserServiceImpl implements UserService {
                 .username(user.getUsername())
                 .build();
         try {
+            System.out.println("Sending user update event");
             rabbitTemplate.convertAndSend(RabbitMQConfig.USER_UPDATE_EXCHANGE,
                     RabbitMQConfig.USER_UPDATE_ROUTING_KEY, userUpdateEvent);
         } catch (AmqpException e) {

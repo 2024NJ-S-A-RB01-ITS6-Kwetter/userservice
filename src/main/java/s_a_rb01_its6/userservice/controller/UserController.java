@@ -23,8 +23,6 @@ import static s_a_rb01_its6.userservice.config.Constant.API_URL;
 public class UserController {
     private final UserServiceImpl userService;
 
-
-
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
         RegisterResponse registerResponse = userService.createUser(registerUserRequest);

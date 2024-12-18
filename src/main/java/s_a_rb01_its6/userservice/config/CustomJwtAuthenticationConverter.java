@@ -1,6 +1,4 @@
 package s_a_rb01_its6.userservice.config;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 import io.micrometer.common.lang.NonNull;
 import org.springframework.beans.factory.annotation.Value;

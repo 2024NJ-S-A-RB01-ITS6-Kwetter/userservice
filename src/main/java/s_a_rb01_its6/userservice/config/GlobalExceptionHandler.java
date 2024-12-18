@@ -3,13 +3,9 @@ package s_a_rb01_its6.userservice.config;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import org.keycloak.adapters.springsecurity.KeycloakAuthenticationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -17,8 +13,6 @@ import s_a_rb01_its6.userservice.domain.responses.ErrorResponse;
 import s_a_rb01_its6.userservice.service.exception.KeyCloakError;
 import s_a_rb01_its6.userservice.service.exception.ResourceNotFoundException;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @RestControllerAdvice

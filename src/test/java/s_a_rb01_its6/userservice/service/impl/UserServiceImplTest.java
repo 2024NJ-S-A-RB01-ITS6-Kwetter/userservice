@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import s_a_rb01_its6.userservice.config.RabbitMQConfig;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
@@ -69,9 +68,7 @@ class UserServiceImplTest {
         RegisterUserRequest request = new RegisterUserRequest("username", "password", "email@example.com");
         when(userRepository.existsByUsername(request.username())).thenReturn(true);
         // Act
-        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
-            userService.createUser(request);
-        });
+        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> userService.createUser(request));
         // Assert
         assertEquals("Username already exists", exception.getMessage());
         verify(userRepository, never()).save(any(UserEntity.class));
@@ -84,9 +81,7 @@ class UserServiceImplTest {
         RegisterUserRequest request = new RegisterUserRequest("username", "password", "email@example.com");
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
         // Act
-        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
-            userService.createUser(request);
-        });
+        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> userService.createUser(request));
         // Assert
         assertEquals("Email already exists", exception.getMessage());
         verify(userRepository, never()).save(any(UserEntity.class));
@@ -116,9 +111,7 @@ class UserServiceImplTest {
         // Arrange
         when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
         // Act
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.deleteUserByUserName("username");
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.deleteUserByUserName("username"));
         // Assert
         assertEquals("User does not exist", exception.getMessage());
         verify(userRepository, never()).deleteById(anyString());
@@ -147,9 +140,7 @@ class UserServiceImplTest {
         // Arrange
         when(userRepository.findByUsername("username")).thenReturn(Optional.empty());
         // Act
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.getProfileByUsername("username");
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.getProfileByUsername("username"));
         // Assert
         assertEquals("User does not exist", exception.getMessage());
         verify(userRepository).findByUsername("username");
@@ -191,9 +182,7 @@ class UserServiceImplTest {
 
         when(userRepository.findById(request.id())).thenReturn(Optional.empty());
         // Act
-        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> {
-            userService.updateUser(request);
-        });
+        EntityNotFoundException exception = assertThrows(EntityNotFoundException.class, () -> userService.updateUser(request));
         // Assert
         assertEquals("User does not exist", exception.getMessage());
         verify(userRepository, never()).save(any(UserEntity.class));
@@ -210,9 +199,7 @@ class UserServiceImplTest {
         when(userRepository.findById(request.id())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(request.username())).thenReturn(true);
         // Act
-        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
-            userService.updateUser(request);
-        });
+        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> userService.updateUser(request));
         // Assert
         assertEquals("Username already exists", exception.getMessage());
         verify(userRepository, never()).save(any(UserEntity.class));
@@ -230,9 +217,7 @@ class UserServiceImplTest {
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
         // Act
-        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
-            userService.updateUser(request);
-        });
+        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> userService.updateUser(request));
         // Assert
         assertEquals("Email already exists", exception.getMessage());
         verify(userRepository, never()).save(any(UserEntity.class));
@@ -249,9 +234,7 @@ class UserServiceImplTest {
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
         // Act
-        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> {
-            userService.updateUser(request);
-        });
+        EntityExistsException exception = assertThrows(EntityExistsException.class, () -> userService.updateUser(request));
         // Assert
         assertEquals("Email already exists", exception.getMessage());
         verify(userRepository, never()).save(any(UserEntity.class));

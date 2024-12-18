@@ -66,8 +66,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(user.get().getId());
         //delete the user from keycloak
         keycloakService.deleteUserInKeycloak(user.get().getId());
-
-        //TODO RABBITMQ
+        // Publish user delete event
         rabbitTemplate.convertAndSend(RabbitMQConfig.USER_DELETE_EXCHANGE,
                 RabbitMQConfig.USER_DELETE_ROUTING_KEY, user.get().getId());
 

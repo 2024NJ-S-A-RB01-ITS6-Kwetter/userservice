@@ -49,6 +49,9 @@ dependencies {
 	// MySQL Connector
 	runtimeOnly 'mysql:mysql-connector-java:8.0.33'
 
+	implementation 'mysql:mysql-connector-java:8.0.33'
+
+
 	// Lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'

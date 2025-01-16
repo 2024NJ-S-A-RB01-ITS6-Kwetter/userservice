@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -17,6 +18,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @RequiredArgsConstructor
 @EnableMethodSecurity(prePostEnabled = true)
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@EnableAsync
 public class SecurityConfig {
 
     private final CustomJwtAuthenticationConverter jwtAuthConverter;

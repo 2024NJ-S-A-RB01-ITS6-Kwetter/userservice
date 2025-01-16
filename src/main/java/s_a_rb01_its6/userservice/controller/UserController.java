@@ -14,6 +14,7 @@ import s_a_rb01_its6.userservice.domain.responses.UserUpdatedResponse;
 import s_a_rb01_its6.userservice.service.impl.UserServiceImpl;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static s_a_rb01_its6.userservice.config.Constant.API_URL;
 
@@ -23,41 +24,51 @@ import static s_a_rb01_its6.userservice.config.Constant.API_URL;
 public class UserController {
     private final UserServiceImpl userService;
 
+    // Register user (async)
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponse> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
-        RegisterResponse registerResponse = userService.createUser(registerUserRequest);
-        return ResponseEntity.ok(registerResponse);
+    public CompletableFuture<ResponseEntity<RegisterResponse>> registerUser(@Valid @RequestBody RegisterUserRequest registerUserRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            RegisterResponse registerResponse = userService.createUser(registerUserRequest);
+            return ResponseEntity.ok(registerResponse);
+        });
     }
 
-    //update user
+    // Update user (async)
     @PutMapping("/update")
-// Check if the user updating is the same user as being updated or if they have admin rights
     @PreAuthorize("hasRole('ADMIN') or #userRequest.id.equals(authentication.principal.claims['sub'])")
-    public ResponseEntity<UserUpdatedResponse> updateUser(@Valid @RequestBody UserRequest userRequest) {
-        UserUpdatedResponse userUpdatedResponse = userService.updateUser (userRequest);
-        return ResponseEntity.ok(userUpdatedResponse);
+    public CompletableFuture<ResponseEntity<UserUpdatedResponse>> updateUser(@Valid @RequestBody UserRequest userRequest) {
+        return CompletableFuture.supplyAsync(() -> {
+            UserUpdatedResponse userUpdatedResponse = userService.updateUser(userRequest);
+            return ResponseEntity.ok(userUpdatedResponse);
+        });
     }
 
-    //delete user
+    // Delete user (async)
     @PreAuthorize("hasRole('ADMIN') or #username.equals(authentication.name)")
     @DeleteMapping("/delete/{username}")
-    public ResponseEntity<DeleteUserResponse> deleteUser(@PathVariable String username) {
-        DeleteUserResponse deleteUserResponse = userService.deleteUserByUserName(username);
-        return ResponseEntity.ok(deleteUserResponse);
+    public CompletableFuture<ResponseEntity<DeleteUserResponse>> deleteUser(@PathVariable String username) {
+        return CompletableFuture.supplyAsync(() -> {
+            DeleteUserResponse deleteUserResponse = userService.deleteUserByUserName(username);
+            return ResponseEntity.ok(deleteUserResponse);
+        });
     }
 
-    //get profile
+    // Get profile (async)
     @GetMapping("/profile/{username}")
-    public ResponseEntity<UserResponse> getProfile(@PathVariable String username) {
-        UserResponse userResponse = userService.getProfileByUsername(username);
-        return ResponseEntity.ok(userResponse);
+    public CompletableFuture<ResponseEntity<UserResponse>> getProfile(@PathVariable String username) {
+        return CompletableFuture.supplyAsync(() -> {
+            UserResponse userResponse = userService.getProfileByUsername(username);
+            return ResponseEntity.ok(userResponse);
+        });
     }
 
-    //search user
+    // Search user (async)
     @GetMapping("/search")
-    public ResponseEntity<List<UserResponse>> searchUser(@RequestParam String username) {
-        List<UserResponse> userResponses = userService.searchUser(username);
-        return ResponseEntity.ok(userResponses);
+    public CompletableFuture<ResponseEntity<List<UserResponse>>> searchUser(@RequestParam String username) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<UserResponse> userResponses = userService.searchUser(username);
+            return ResponseEntity.ok(userResponses);
+        });
     }
 
 }

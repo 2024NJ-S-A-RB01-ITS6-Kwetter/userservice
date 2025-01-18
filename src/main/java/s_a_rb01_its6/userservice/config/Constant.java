@@ -1,4 +1,4 @@
-package s_a_rb01_its6.notificationservice.config;
+package s_a_rb01_its6.userservice.config;
 
 public class Constant {
     public static final String BASE_API_URL = "/api";

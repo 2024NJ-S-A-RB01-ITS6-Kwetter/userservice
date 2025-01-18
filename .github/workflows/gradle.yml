@@ -136,5 +136,6 @@ jobs:
         uses: actions/checkout@v3
       
       - name: Deploy to Kubernetes
-        run: kubectl apply -f ./deployment
-             kubectl rollout restart deployment/user-service
+        run: |
+            kubectl apply -f ./deployment
+            kubectl rollout restart deployment/user-service

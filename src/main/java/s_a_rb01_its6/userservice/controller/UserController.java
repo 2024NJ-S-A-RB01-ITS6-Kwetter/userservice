@@ -2,10 +2,13 @@ package s_a_rb01_its6.userservice.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import s_a_rb01_its6.userservice.domain.UserDTO;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.SearchUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -13,7 +16,9 @@ import s_a_rb01_its6.userservice.domain.responses.UserResponse;
 import s_a_rb01_its6.userservice.domain.responses.UserUpdatedResponse;
 import s_a_rb01_its6.userservice.service.impl.UserServiceImpl;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static s_a_rb01_its6.userservice.config.Constant.API_URL;
@@ -23,6 +28,12 @@ import static s_a_rb01_its6.userservice.config.Constant.API_URL;
 @RequiredArgsConstructor
 public class UserController {
     private final UserServiceImpl userService;
+
+    public static final String CURRENT_PAGE = "currentPage";
+    public static final String TOTAL_PAGES = "totalPages";
+    public static final String PAGE_SIZE = "pageSize";
+    public static final String TOTAL_ELEMENTS = "totalElements";
+    public static final String USERS = "users";
 
     // Register user (async)
     @PostMapping("/register")
@@ -62,12 +73,23 @@ public class UserController {
         });
     }
 
-    // Search user (async)
+    // Search posts (async)
     @GetMapping("/search")
-    public CompletableFuture<ResponseEntity<List<UserResponse>>> searchUser(@RequestParam String username) {
+    public CompletableFuture<ResponseEntity<Map<String, Object>>> searchPost(
+            @RequestParam String query,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "10") int size) {
         return CompletableFuture.supplyAsync(() -> {
-            List<UserResponse> userResponses = userService.searchUser(username);
-            return ResponseEntity.ok(userResponses);
+            SearchUserRequest searchUserRequest = new SearchUserRequest(page, size, query);
+            Page<UserDTO> users = userService.searchUsers(searchUserRequest);
+            Map<String, Object> response = new HashMap<>();
+            response.put(CURRENT_PAGE, users.getNumber());
+            response.put(TOTAL_PAGES, users.getTotalPages());
+            response.put(PAGE_SIZE, users.getSize());
+            response.put(TOTAL_ELEMENTS, users.getTotalElements());
+            response.put(USERS, users.getContent());
+
+            return ResponseEntity.ok(response);
         });
     }
 

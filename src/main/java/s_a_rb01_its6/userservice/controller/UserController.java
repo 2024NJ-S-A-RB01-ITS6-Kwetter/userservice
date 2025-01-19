@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import s_a_rb01_its6.userservice.domain.UserDTO;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.SearchUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.UpdateUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -46,10 +47,10 @@ public class UserController {
 
     // Update user (async)
     @PutMapping("/update")
-    @PreAuthorize("hasRole('ADMIN') or #userRequest.id.equals(authentication.principal.claims['sub'])")
-    public CompletableFuture<ResponseEntity<UserUpdatedResponse>> updateUser(@Valid @RequestBody UserRequest userRequest) {
+    @PreAuthorize("hasRole('ADMIN') or #updateUserRequest.id.equals(authentication.principal.claims['sub'])")
+    public CompletableFuture<ResponseEntity<UserUpdatedResponse>> updateUser(@Valid @RequestBody UpdateUserRequest updateUserRequest) {
         return CompletableFuture.supplyAsync(() -> {
-            UserUpdatedResponse userUpdatedResponse = userService.updateUser(userRequest);
+            UserUpdatedResponse userUpdatedResponse = userService.updateUser(updateUserRequest);
             return ResponseEntity.ok(userUpdatedResponse);
         });
     }

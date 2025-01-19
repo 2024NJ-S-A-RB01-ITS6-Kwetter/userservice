@@ -14,6 +14,7 @@ import s_a_rb01_its6.userservice.config.RabbitMQConfig;
 import s_a_rb01_its6.userservice.domain.UserDTO;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.SearchUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.UpdateUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -86,37 +87,61 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public UserUpdatedResponse updateUser(UserRequest userRequest) {
+    public UserUpdatedResponse updateUser(UpdateUserRequest updateUserRequest) {
         // Fetch the user or throw if not found
-        UserEntity user = userRepository.findById(userRequest.id())
+        UserEntity user = userRepository.findById(updateUserRequest.id())
                 .orElseThrow(() -> new EntityNotFoundException("User does not exist"));
+
         // Check if the new username or email is already taken
-        if (Boolean.FALSE.equals(user.getUsername().equals(userRequest.username()))
-                && Boolean.TRUE.equals(userRepository.existsByUsername(userRequest.username()))) {
+        if (updateUserRequest.username() != null &&
+                !user.getUsername().equals(updateUserRequest.username()) &&
+                userRepository.existsByUsername(updateUserRequest.username())) {
             throw new EntityExistsException("Username already exists");
         }
-        if (Boolean.FALSE.equals(user.getEmail().equals(userRequest.email()))
-                && Boolean.TRUE.equals(userRepository.existsByEmail(userRequest.email()))) {
+
+        if (updateUserRequest.email() != null &&
+                !user.getEmail().equals(updateUserRequest.email()) &&
+                userRepository.existsByEmail(updateUserRequest.email())) {
             throw new EntityExistsException("Email already exists");
         }
-        // Update the user
-        user.setEmail(userRequest.email());
-        user.setUsername(userRequest.username());
-        user.setBio(userRequest.bio());
+
+        // Update only the fields provided in the request
+        if (updateUserRequest.email() != null) {
+            user.setEmail(updateUserRequest.email());
+        }
+        if (updateUserRequest.username() != null) {
+            user.setUsername(updateUserRequest.username());
+        }
+        if (updateUserRequest.bio() != null) {
+            user.setBio(updateUserRequest.bio());
+        }
+
+        // Save the updated user
         userRepository.save(user);
 
-        //call keycloak service to update the user
-        keycloakService.updateUserInKeycloak(user.getId(), userRequest.username(), userRequest.email(), userRequest.password());
+        // Call Keycloak service to update the user only for provided fields
+        if (updateUserRequest.username() != null || updateUserRequest.email() != null || updateUserRequest.password() != null) {
+            keycloakService.updateUserInKeycloak(
+                    user.getId(),
+                    updateUserRequest.username() != null ? updateUserRequest.username() : user.getUsername(),
+                    updateUserRequest.email() != null ? updateUserRequest.email() : user.getEmail(),
+                    updateUserRequest.password() // Password can be null if not provided
+            );
+        }
 
         // Publish user update event
         UserUpdatedEvent userUpdateEvent = UserUpdatedEvent.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .build();
+
         try {
             System.out.println("Sending user update event");
-            rabbitTemplate.convertAndSend(RabbitMQConfig.USER_UPDATE_EXCHANGE,
-                    RabbitMQConfig.USER_UPDATE_ROUTING_KEY, userUpdateEvent);
+            rabbitTemplate.convertAndSend(
+                    RabbitMQConfig.USER_UPDATE_EXCHANGE,
+                    RabbitMQConfig.USER_UPDATE_ROUTING_KEY,
+                    userUpdateEvent
+            );
         } catch (AmqpException e) {
             throw new RuntimeException("Failed to send user update event", e);
         }

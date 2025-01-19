@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import s_a_rb01_its6.userservice.domain.UserDTO;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.SearchUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.UpdateUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -16,7 +17,7 @@ public interface UserService {
 
     RegisterResponse createUser(RegisterUserRequest registerUserRequest);
 
-    UserUpdatedResponse updateUser(UserRequest userRequest);
+    UserUpdatedResponse updateUser(UpdateUserRequest userRequest);
 
     DeleteUserResponse deleteUserByUserName(String username);
 

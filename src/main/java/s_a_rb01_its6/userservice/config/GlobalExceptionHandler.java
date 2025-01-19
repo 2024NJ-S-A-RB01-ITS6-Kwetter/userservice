@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
                 .details(errorMessages)
                 .build());
     }
-
+    //test
     @ExceptionHandler(value = {KeyCloakError.class})
     public ResponseEntity<Object> handleKeycloakAuthenticationException(final KeyCloakError error) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ErrorResponse.builder()

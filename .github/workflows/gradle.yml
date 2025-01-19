@@ -24,7 +24,7 @@ jobs:
       - name: Set execute permissions
         run: chmod +x gradlew
       - name: Build with Gradle Wrapper
-        run: ./gradlew build -x test
+        run: ./gradlew clean build -x test
 
   test:
     name: Test
@@ -75,7 +75,7 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4.0.0
       - name: Run SonarQube Analysis
-        run: ./gradlew build jacocoTestReport sonarqube --info
+        run: ./gradlew clean build jacocoTestReport sonarqube --info
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

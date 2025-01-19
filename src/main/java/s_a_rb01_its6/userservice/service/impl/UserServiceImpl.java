@@ -5,10 +5,15 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import s_a_rb01_its6.userservice.config.RabbitMQConfig;
+import s_a_rb01_its6.userservice.domain.UserDTO;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.SearchUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -18,6 +23,7 @@ import s_a_rb01_its6.userservice.events.UserUpdatedEvent;
 import s_a_rb01_its6.userservice.repository.UserRepository;
 import s_a_rb01_its6.userservice.repository.entities.UserEntity;
 import s_a_rb01_its6.userservice.service.UserService;
+import s_a_rb01_its6.userservice.service.exception.OutOfBoundPageException;
 import s_a_rb01_its6.userservice.service.impl.dtoconverter.UserDTOConverter;
 
 import java.util.List;
@@ -122,8 +128,28 @@ public class UserServiceImpl implements UserService {
     }
 
     //search user
-    public List<UserResponse> searchUser(String username) {
-        List<UserEntity> users = userRepository.findByUsernameContainingIgnoreCase(username);
-        return users.stream().map(UserDTOConverter::toUserResponse).collect(Collectors.toList());
+    @Override
+    public Page<UserDTO> searchUsers(SearchUserRequest searchUserRequest) {
+        // out of bound check
+        if (searchUserRequest.getPage() <= 0) {
+            throw new OutOfBoundPageException("Page number cannot be negative or zero");
+        }
+
+        // minus 1 because page starts indexing at 0
+        Pageable pageable = PageRequest.of(searchUserRequest.getPage() - 1, searchUserRequest.getSize());
+
+        Page<UserEntity> posts = userRepository.findByUsernameContainingIgnoreCase(
+                searchUserRequest.getQuery(),
+                pageable
+        );
+        // out of bound check
+        if (searchUserRequest.getPage() > posts.getTotalPages() && searchUserRequest.getPage() != 1) {
+            throw new OutOfBoundPageException("Page number is out of bounds");
+        }
+
+        return posts.map(UserDTOConverter::toUser);
     }
+
+
+
 }

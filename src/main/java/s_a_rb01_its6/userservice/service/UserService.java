@@ -1,6 +1,9 @@
 package s_a_rb01_its6.userservice.service;
 
+import org.springframework.data.domain.Page;
+import s_a_rb01_its6.userservice.domain.UserDTO;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.SearchUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.DeleteUserResponse;
 import s_a_rb01_its6.userservice.domain.responses.RegisterResponse;
@@ -19,5 +22,5 @@ public interface UserService {
 
     UserResponse getProfileByUsername(String username);
 
-    List<UserResponse> searchUser(String username);
+    Page<UserDTO> searchUsers(SearchUserRequest searchPostRequest);
 }

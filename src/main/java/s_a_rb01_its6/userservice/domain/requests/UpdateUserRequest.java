@@ -13,7 +13,7 @@ public record UpdateUserRequest(
         String email,
 
         @Size(min = 3, max = 20, message = "Username must be between 3 and 20 characters")
-        String username,
+        String username, // Can be null or empty, but must adhere to size constraints if provided
 
         @Size(min = 8, message = "Password must be at least 8 characters long")
         String password,

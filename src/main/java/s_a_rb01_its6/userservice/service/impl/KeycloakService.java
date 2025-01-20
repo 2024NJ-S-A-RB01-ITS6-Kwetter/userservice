@@ -1,6 +1,8 @@
 package s_a_rb01_its6.userservice.service.impl;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.ws.rs.BadRequestException;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.OAuth2Constants;
@@ -85,34 +87,62 @@ public class KeycloakService {
     }
 
     public void updateUserInKeycloak(String userId, String newUsername, String newEmail, String password) {
-        // Validate new username and email before making Keycloak requests
-        if (newUsername == null || newUsername.trim().isEmpty()) {
-            throw new IllegalArgumentException("New username cannot be null or empty.");
-        }
-        if (newEmail == null || newEmail.trim().isEmpty()) {
-            throw new IllegalArgumentException("New email cannot be null or empty.");
+        // Validate at least one field is provided for update
+        if ((newUsername == null || newUsername.trim().isEmpty()) &&
+                (newEmail == null || newEmail.trim().isEmpty()) &&
+                (password == null || password.trim().isEmpty())) {
+            throw new IllegalArgumentException("At least one field (username, email, or password) must be provided.");
         }
 
-        // Get the UsersResource for the realm
         UsersResource usersResource = keycloak.realm(realm).users();
 
         try {
-            // Fetch the current UserRepresentation from Keycloak
+            // Fetch the current UserRepresentation
             UserResource userResource = usersResource.get(userId);
             UserRepresentation userRepresentation = userResource.toRepresentation();
 
-            // Update fields
-            userRepresentation.setUsername(newUsername);
-            userRepresentation.setEmail(newEmail);
-            userRepresentation.setCredentials(Collections.singletonList(createPasswordCredentials(password)));
-            userRepresentation.setEnabled(true); // Ensure the user is enabled
+            // Update username if provided
+            if (newUsername != null && !newUsername.trim().isEmpty()) {
+                userRepresentation.setUsername(newUsername);
+            }
+
+            // Update email if provided
+            if (newEmail != null && !newEmail.trim().isEmpty()) {
+                userRepresentation.setEmail(newEmail);
+            }
+
+            // Update password if provided
+            if (password != null && !password.trim().isEmpty()) {
+                userRepresentation.setCredentials(Collections.singletonList(createPasswordCredentials(password)));
+            }
+
+            // Ensure user remains enabled
+            userRepresentation.setEnabled(true);
+
+            // Update user in Keycloak
             userResource.update(userRepresentation);
-            //log the user out of all sessions
-            keycloak.realm(realm).users().get(userId).logout();
+
+            // Log the user out of all sessions if updates were successful
+            usersResource.get(userId).logout();
+
+            // Console log for success
+            System.out.println("Successfully updated user with ID: " + userId);
+        } catch (NotFoundException e) {
+            // Console log for not found
+            System.err.println("User with ID " + userId + " not found in Keycloak.");
+            throw new KeyCloakError("User not found in Keycloak: " + userId);
+        } catch (BadRequestException e) {
+            // Console log for invalid data
+            System.err.println("Invalid data provided for user update in Keycloak: " + userId + ". Error: " + e.getMessage());
+            throw new KeyCloakError("Invalid data provided for user update: " + e.getMessage());
         } catch (Exception e) {
-            throw new KeyCloakError("Failed to update user in Keycloak: " + e.getMessage());
+            // Console log for unexpected error
+            System.err.println("Unexpected error during user update in Keycloak for ID: " + userId + ". Error: " + e.getMessage());
+            throw new KeyCloakError("Unexpected error during user update: " + e.getMessage());
         }
     }
+
+
     private CredentialRepresentation createPasswordCredentials(String password) {
         CredentialRepresentation passwordCred = new CredentialRepresentation();
         passwordCred.setTemporary(false);  // Password is not temporary

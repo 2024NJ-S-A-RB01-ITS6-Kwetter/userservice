@@ -121,13 +121,13 @@ public class UserServiceImpl implements UserService {
 
         // Call Keycloak service to update the user only for provided fields
         if (updateUserRequest.username() != null || updateUserRequest.email() != null || updateUserRequest.password() != null) {
-            keycloakService.updateUserInKeycloak(
-                    user.getId(),
-                    updateUserRequest.username() != null ? updateUserRequest.username() : user.getUsername(),
-                    updateUserRequest.email() != null ? updateUserRequest.email() : user.getEmail(),
-                    updateUserRequest.password() // Password can be null if not provided
-            );
+            String updatedUsername = updateUserRequest.username() != null ? updateUserRequest.username() : user.getUsername();
+            String updatedEmail = updateUserRequest.email() != null ? updateUserRequest.email() : user.getEmail();
+            String updatedPassword = updateUserRequest.password(); // Password can be null
+
+            keycloakService.updateUserInKeycloak(user.getId(), updatedUsername, updatedEmail, updatedPassword);
         }
+
 
         // Publish user update event
         UserUpdatedEvent userUpdateEvent = UserUpdatedEvent.builder()

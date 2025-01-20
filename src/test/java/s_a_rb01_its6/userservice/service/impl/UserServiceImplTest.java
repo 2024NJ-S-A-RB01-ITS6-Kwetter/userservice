@@ -14,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import s_a_rb01_its6.userservice.config.RabbitMQConfig;
 import s_a_rb01_its6.userservice.domain.requests.RegisterUserRequest;
+import s_a_rb01_its6.userservice.domain.requests.UpdateUserRequest;
 import s_a_rb01_its6.userservice.domain.requests.UserRequest;
 import s_a_rb01_its6.userservice.domain.responses.*;
 import s_a_rb01_its6.userservice.events.UserUpdatedEvent;
@@ -150,7 +151,7 @@ class UserServiceImplTest {
     void updateUser_HappyFlow() {
         // Arrange
         UserEntity user = UserEntity.builder().id("userId").username("oldUsername").email("oldEmail@example.com").build();
-        UserRequest request = new UserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
+        UpdateUserRequest request = new UpdateUserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
 
         when(userRepository.findById(request.id())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
@@ -178,7 +179,7 @@ class UserServiceImplTest {
     @Test
     void updateUser_UserDoesNotExist() {
         // Arrange
-        UserRequest request = new UserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
+        UpdateUserRequest request = new UpdateUserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
 
         when(userRepository.findById(request.id())).thenReturn(Optional.empty());
         // Act
@@ -194,7 +195,7 @@ class UserServiceImplTest {
     void updateUser_UsernameExists() {
         // Arrange
         UserEntity user = UserEntity.builder().id("userId").username("oldUsername").email("oldEmail@example.com").build();
-        UserRequest request = new UserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
+        UpdateUserRequest request = new UpdateUserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
 
         when(userRepository.findById(request.id())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(request.username())).thenReturn(true);
@@ -211,7 +212,7 @@ class UserServiceImplTest {
     void updateUser_EmailExists() {
         // Arrange
         UserEntity user = UserEntity.builder().id("userId").username("oldUsername").email("oldEmail@example.com").build();
-        UserRequest request = new UserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
+        UpdateUserRequest request = new UpdateUserRequest("userId", "newEmail@example.com", "newUsername", "newPassword", "bio");
 
         when(userRepository.findById(request.id())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
@@ -228,7 +229,7 @@ class UserServiceImplTest {
     void updateUser_nullUserName() {
         // Arrange
         UserEntity user = UserEntity.builder().id("userId").username("oldUsername").email("oldEmail@example.com").build();
-        UserRequest request = new UserRequest("userId", "newEmail@example.com", null, "newPassword", "bio");
+        UpdateUserRequest request = new UpdateUserRequest("userId", "newEmail@example.com", null, "newPassword", "bio");
 
         when(userRepository.findById(request.id())).thenReturn(Optional.of(user));
         when(userRepository.existsByUsername(request.username())).thenReturn(false);
